@@ -1,6 +1,40 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+def select_category(category_list： list):
+    """
+    Display the available expense categories and allow the user to either choose an existing category or add a new one.
+
+    Parameters:
+        category_list: A list containing the current expense category names.
+
+    Returns:
+        str: The selected expense category, either chosen from the list or added by the user.
+    """
+    while True:
+        print("\nAvailable Categories:")
+        for index, category in enumerate(category_list, start=1):
+            print(f"{index}. {category}")
+        print(f"{len(category_list) + 1}. Add a New Category")
+        choice_input = input("Please select a category by number: ").strip()
+        try:
+            choice_number = int(choice_input)
+            if choice_number == len(category_list) + 1:
+                new_category = input("Enter the new category name: ").strip()
+                if new_category:
+                    category_list.append(new_category)
+                    print(f"Category '{new_category}' added.")
+                    return new_category
+                else:
+                    print("Category name cannot be empty. ")
+            elif 1 <= choice_number <= len(category_list):
+                selected_category = category_list[choice_number - 1]
+                return selected_category
+            else:
+                print("Please enter a valid number from the list.")
+        except ValueError:
+            print("Please enter a numeric value.")
+
 def add_expense(expenses: list, category_list: list):
     """
     Enable the user to enter details for a new expense record and append it to the expense records list with the following details: date, amount, category, and additional notations (optional).
