@@ -1,7 +1,7 @@
 class InteractiveExpenseTracker:
     def __init__(self):
-        self.weekly_totals = {}  # {category: total_spent}
-        self.weekly_budgets = {}  # {category: budget}
+        self.weekly_totals = {} 
+        self.weekly_budgets = {}  
         self.active = True
 
     def start(self):
@@ -30,7 +30,6 @@ class InteractiveExpenseTracker:
         try:
             amount = float(input("Enter amount: $").strip())
             category = input("Category: ").strip()
-            notes = input("Notes (optional): ").strip()
 
             # Auto-create category if not exists
             if category not in self.weekly_totals:
@@ -83,7 +82,7 @@ class InteractiveExpenseTracker:
         spent = self.weekly_totals[category]
 
         if spent > budget:
-            print(f"🚨🚨🚨 OVERBUDGET! {category}: ${spent:.2f} / ${budget:.2f}")
+            print(f"🚨 OVERBUDGET! {category}: ${spent:.2f} / ${budget:.2f}")
         elif spent >= 0.9 * budget:
             print(f"⚠️  WARNING: {category} at {spent / budget:.0%} ({spent:.2f}/{budget:.2f})")
 
