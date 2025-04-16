@@ -2,14 +2,14 @@ class InteractiveExpenseTracker:
     def __init__(self):
         self.weekly_totals = {} 
         self.weekly_budgets = {}  
-        self.active = True
+        self.active = 1
 
     def start(self):
         """Main interactive loop"""
         print("=== Weekly Expense Tracker ===")
         print("Commands: add, budget, summary, reset, exit")
 
-        while self.active:
+        while self.active == 1:
             command = input("\n> ").strip().lower()
 
             if command == "add":
@@ -21,7 +21,7 @@ class InteractiveExpenseTracker:
             elif command == "reset":
                 self._reset_week()
             elif command == "exit":
-                self.active = False
+                self.active = 0
             else:
                 print("Invalid command. Available commands: add, budget, summary, reset, exit")
 
@@ -50,7 +50,7 @@ class InteractiveExpenseTracker:
                 self._set_budget_flow(category)
                 break
             elif choice == 'n':
-                print(f"⚠️  {category} will have no budget monitoring")
+                print(f"{category} will have no budget monitoring")
                 self.weekly_budgets[category] = None
                 break
             else:
@@ -74,20 +74,17 @@ class InteractiveExpenseTracker:
             print("Invalid budget! Must be a positive number.")
 
     def _check_budget(self, category):
-        """Real-time budget monitoring"""
         budget = self.weekly_budgets.get(category)
         if budget is None:
             return
-
         spent = self.weekly_totals[category]
 
         if spent > budget:
-            print(f"🚨 OVERBUDGET! {category}: ${spent:.2f} / ${budget:.2f}")
+            print(f"OVERBUDGET! {category}: ${spent:.2f} / ${budget:.2f}")
         elif spent >= 0.9 * budget:
-            print(f"⚠️  WARNING: {category} at {spent / budget:.0%} ({spent:.2f}/{budget:.2f})")
+            print(f"WARNING: {category} at {spent / budget:.0%} ({spent:.2f}/{budget:.2f})")
 
     def _show_summary(self):
-        """Display current weekly status"""
         print("\n=== Weekly Summary ===")
         for category, spent in self.weekly_totals.items():
             budget = self.weekly_budgets.get(category)
