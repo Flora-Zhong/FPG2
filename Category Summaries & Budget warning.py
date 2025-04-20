@@ -52,16 +52,15 @@ class InteractiveExpenseTracker:
     def _add_expense_flow(self):
         """Handle expense entry process"""
         valid_input = False
+        category = input("Category: ").strip()
+        category = category.capitalize()
+
+        # Auto-create category if not exists
+        if category.capitalize() not in self.weekly_totals:
+            self._handle_new_category(category)
         while not valid_input:
             try:
                 amount = float(input("Enter amount: $").strip())
-                category = input("Category: ").strip()
-                category = category.capitalize()
-
-                # Auto-create category if not exists
-                if category.capitalize() not in self.weekly_totals:
-                    self._handle_new_category(category)
-
                 self._add_expense(amount, category)
                 print(f"✅ Added ${amount:.2f} to {category}")
                 valid_input = True
@@ -96,14 +95,17 @@ class InteractiveExpenseTracker:
         """Budget setting workflow"""
         category = predefined_category or input("Category: ").strip()
         category = category.capitalize()
-        try:
-            budget = float(input(f"Weekly budget for {category}: $").strip())
-            if budget <= 0:
-                raise ValueError
-            self.weekly_budgets[category] = budget
-            print(f"✅ Weekly budget for {category} set to ${budget:.2f}")
-        except ValueError:
-            print("Invalid budget! Must be a positive number.")
+        valid_input = False
+        while not valid_input:
+            try:
+                budget = float(input(f"Weekly budget for {category}: $").strip())
+                if budget <= 0:
+                    raise ValueError
+                self.weekly_budgets[category] = budget
+                print(f"✅ Weekly budget for {category} set to ${budget:.2f}")
+                valid_input = True
+            except ValueError:
+                print("Invalid budget! Must be a positive number.")
 
     def _check_budget(self, category):
         category = category.capitalize()
@@ -127,7 +129,8 @@ class InteractiveExpenseTracker:
 
             print(f"{category.upper():<15} ${spent:.2f}  {budget_info} {progress_bar}")
 
-    def _create_progress_bar(self, progress, length=20):
+    @classmethod
+    def _create_progress_bar(cls, progress, length=20):
         """Visualize budget progress"""
         filled = min(int(progress * length), length)
         return f"[{'█' * filled}{'░' * (length - filled)}] {min(progress * 100, 100):.0f}%"
