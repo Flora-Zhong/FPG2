@@ -1,3 +1,14 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+def menu():
+    print("=== Weekly Expense Tracker ===")
+    print("1. Add expanse")
+    print("2. Add budget")
+    print("3. Show weekly summary")
+    print("4. Reset the week")
+    print("5. Exit")
+
 class InteractiveExpenseTracker:
     def __init__(self):
         self.weekly_totals = {} 
@@ -6,43 +17,62 @@ class InteractiveExpenseTracker:
 
     def start(self):
         """Main interactive loop"""
-        print("=== Weekly Expense Tracker ===")
-        print("Commands: add, budget, summary, reset, exit")
+        menu()
 
         while self.active == 1:
-            command = input("\n> ").strip().lower()
-
-            if command == "add":
-                self._add_expense_flow()
-            elif command == "budget":
-                self._set_budget_flow()
-            elif command == "summary":
-                self._show_summary()
-            elif command == "reset":
-                self._reset_week()
-            elif command == "exit":
-                self.active = 0
+            print()
+            option = input("Please select an option: ")
+            try:
+                option = int(option)
+            except ValueError:
+                print()
+                print("Please enter an integer between 1 and 5.")
+                print()
+                menu()
+                print()
             else:
-                print("Invalid command. Available commands: add, budget, summary, reset, exit")
+                if option == 1:
+                    self._add_expense_flow()
+                elif option == 2:
+                    self._set_budget_flow()
+                elif option == 3:
+                    self._show_summary()
+                elif option == 4:
+                    self._reset_week()
+                elif option == 5:
+                    print("Thank you for using Student Daily Usage & Expense Tracker! Good bye!")
+                    self.active = 0
+                else:
+                    print()
+                    print("Invalid option. Please select from 1 to 5.")
+                    print()
+                    menu()
+                    print()
 
     def _add_expense_flow(self):
         """Handle expense entry process"""
-        try:
-            amount = float(input("Enter amount: $").strip())
-            category = input("Category: ").strip()
+        valid_input = False
+        while not valid_input:
+            try:
+                amount = float(input("Enter amount: $").strip())
+                category = input("Category: ").strip()
+                category = category.capitalize()
 
-            # Auto-create category if not exists
-            if category not in self.weekly_totals:
-                self._handle_new_category(category)
+                # Auto-create category if not exists
+                if category.capitalize() not in self.weekly_totals:
+                    self._handle_new_category(category)
 
-            self._add_expense(amount, category)
-            print(f"✅ Added ${amount:.2f} to {category}")
+                self._add_expense(amount, category)
+                print(f"✅ Added ${amount:.2f} to {category}")
+                valid_input = True
 
-        except ValueError:
-            print("Invalid amount! Please enter a number.")
+            except ValueError:
+                print("Invalid amount! Please enter a number.")
+                print()
 
     def _handle_new_category(self, category):
         """Handle dynamic category creation"""
+        category = category.capitalize()
         print(f"New category detected: {category}")
         while True:
             choice = input("Set weekly budget for this category? (y/n): ").lower()
@@ -58,12 +88,14 @@ class InteractiveExpenseTracker:
 
     def _add_expense(self, amount, category):
         """Update totals and check budget"""
+        category = category.capitalize()
         self.weekly_totals[category] = self.weekly_totals.get(category, 0) + amount
         self._check_budget(category)
 
     def _set_budget_flow(self, predefined_category=None):
         """Budget setting workflow"""
         category = predefined_category or input("Category: ").strip()
+        category = category.capitalize()
         try:
             budget = float(input(f"Weekly budget for {category}: $").strip())
             if budget <= 0:
@@ -74,6 +106,7 @@ class InteractiveExpenseTracker:
             print("Invalid budget! Must be a positive number.")
 
     def _check_budget(self, category):
+        category = category.capitalize()
         budget = self.weekly_budgets.get(category)
         if budget is None:
             return
@@ -101,8 +134,11 @@ class InteractiveExpenseTracker:
 
     def _reset_week(self):
         """Reset all weekly totals"""
-        self.weekly_totals.clear()
-        print("Weekly totals cleared. Ready for new week!")
+        if self.weekly_totals == {}:
+            print("Weekly totals is already empty!")
+        else:
+            self.weekly_totals.clear()
+            print("Weekly totals cleared. Ready for new week!")
 
 
 if __name__ == "__main__":
