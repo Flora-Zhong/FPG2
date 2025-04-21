@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 def menu():
     print("=== Weekly Expense Tracker ===")
-    print("1. Add expanse")
+    print("1. Add expense")
     print("2. Add budget")
     print("3. Show weekly summary")
     print("4. Reset the week")
