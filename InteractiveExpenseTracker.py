@@ -15,6 +15,7 @@ class InteractiveExpenseTracker:
     def __init__(self):
         self.username = input("Enter your username: ").strip()
         self.data_file = f"data_{self.username}.json"
+        self.history_file = f"history_{self.username}.json"
 
         self.weekly_totals = {}
         self.weekly_budgets = {}
@@ -36,7 +37,7 @@ class InteractiveExpenseTracker:
                             data = json.load(f)
                             self.weekly_totals = data.get("weekly_totals", {})
                             self.weekly_budgets = data.get("weekly_budgets", {})
-                            print(f"✅ Loaded data for user: {self.username}")
+                            print(f"Loaded data for user: {self.username}")
                             print()
                             f.close()
                             valid_input = True
@@ -110,7 +111,7 @@ class InteractiveExpenseTracker:
             try:
                 amount = float(input("Enter amount: $").strip())
                 self._add_expense(amount, category)
-                print(f"✅ Added ${amount:.2f} to {category}")
+                print(f"Added ${amount:.2f} to {category}")
                 valid_input = True
 
             except ValueError:
@@ -151,7 +152,7 @@ class InteractiveExpenseTracker:
                 if budget <= 0:
                     raise ValueError
                 self.weekly_budgets[category] = budget
-                print(f"✅ Weekly budget for {category} set to ${budget:.2f}")
+                print(f"Weekly budget for {category} set to ${budget:.2f}")
                 valid_input = True
                 self.save_data()
             except ValueError:
@@ -191,9 +192,8 @@ class InteractiveExpenseTracker:
             print("Weekly totals is already empty!")
         else:
             self.weekly_totals.clear()
-            print("Weekly totals cleared. Ready for new week!")
+            print("Weekly totals cleared. History data has stored. Ready for new week!")
             self.save_data()
-
 
     def prepare_chart_data(self):
         """ Arrange data into a dictionary with the form of category: [expanse, budget]. """
@@ -248,6 +248,20 @@ class InteractiveExpenseTracker:
         with open(self.data_file, "w") as f:
             json.dump(data, f)
 
+        try:
+            with open(self.history_file, "r") as f:
+                history = json.load(f)
+        except FileNotFoundError:
+            history = []
+
+        snapshot = {
+            "totals": self.weekly_totals.copy(),
+            "budgets": self.weekly_budgets.copy()
+        }
+        history.append(snapshot)
+
+        with open(self.history_file, "w") as f:
+            json.dump(history, f)
 
 
 if __name__ == "__main__":
