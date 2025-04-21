@@ -22,10 +22,42 @@ class InteractiveExpenseTracker:
 
         try:
             with open(self.data_file, "r") as f:
-                data = json.load(f)
-                self.weekly_totals = data.get("weekly_totals", {})
-                self.weekly_budgets = data.get("weekly_budgets", {})
-                print(f"✅ Loaded data for user: {self.username}")
+                print("Username detected, load previous data or create a new username?")
+                choice = input("Press 1 for data loading, and press 2 for new username: ")
+                valid_input = False
+                while not valid_input:
+                    try:
+                        choice = int(choice)
+                    except ValueError:
+                        print("Please enter an integer.")
+                        print()
+                    else:
+                        if choice == 1:
+                            data = json.load(f)
+                            self.weekly_totals = data.get("weekly_totals", {})
+                            self.weekly_budgets = data.get("weekly_budgets", {})
+                            print(f"✅ Loaded data for user: {self.username}")
+                            print()
+                            f.close()
+                            valid_input = True
+                        elif choice == 2:
+                            valid_input = True
+                            f.close()
+                            original_username = self.username
+                            i = 2
+                            while True:
+                                new_username = f"{original_username}{i}"
+                                new_data_file = f"data_{new_username}.json"
+                                try:
+                                    with open(new_data_file, "r") as file:
+                                        file.close()
+                                    i += 1
+                                except FileNotFoundError:
+                                    self.username = new_username
+                                    print(f"Your username is now {self.username}!")
+                                    print(f"New user: {self.username}")
+                                    self.data_file = f"data_{self.username}.json"
+                                    break
         except FileNotFoundError:
             print(f"New user: {self.username}")
 
@@ -183,12 +215,9 @@ class InteractiveExpenseTracker:
         budgets = [v[1] for v in data.values()]
 
         fig, ax = plt.subplots(figsize = (12, 7))
-
         bar_width = 0.4
         x_indexes = np.arange(len(categories))
-
         bars_expanse = ax.bar(x_indexes - bar_width / 2, expanses, width = bar_width, color = "blue", label = "Expense")
-
         bars_budget = ax.bar(x_indexes + bar_width / 2, budgets, width = bar_width, color = "orange", label = "Budget")
 
         def add_labels(bars, color):
