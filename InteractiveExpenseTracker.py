@@ -90,11 +90,11 @@ class InteractiveExpenseTracker:
         category = category.capitalize()
         print(f"New category detected: {category}")
         while True:
-            choice = input("Set weekly budget for this category? (y/n): ").lower()
-            if choice == 'y':
+            choice = input("Set weekly budget for this category? (yes/no): ").lower()
+            if choice == 'yes':
                 self._set_budget_flow(category)
                 break
-            elif choice == 'n':
+            elif choice == 'no':
                 print(f"{category} will have no budget monitoring")
                 self.weekly_budgets[category] = None
                 break
