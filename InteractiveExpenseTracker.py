@@ -73,7 +73,7 @@ class InteractiveExpenseTracker:
 
         # Auto-create category if not exists
         if category.capitalize() not in self.weekly_totals:
-            self._handle_new_category(category)
+            self._handle_new_category(category = category)
         while not valid_input:
             try:
                 amount = float(input("Enter amount: $").strip())
@@ -99,7 +99,7 @@ class InteractiveExpenseTracker:
                 self.weekly_budgets[category] = None
                 break
             else:
-                print("Please answer y/n")
+                print("Please answer yes/no")
 
     def _add_expense(self, amount: float, category: str):
         """Update totals and check budget"""
