@@ -58,6 +58,7 @@ class InteractiveExpenseTracker:
                                     print(f"Your username is now {self.username}!")
                                     print(f"New user: {self.username}")
                                     self.data_file = f"data_{self.username}.json"
+                                    self.history_file = f"history_{self.username}.json"
                                     break
         except FileNotFoundError:
             print(f"New user: {self.username}")
