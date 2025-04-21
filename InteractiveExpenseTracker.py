@@ -1,9 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import json
 
 def menu():
     print("=== Weekly Expense Tracker ===")
-    print("1. Add expense")
+    print("1. Add expanse")
     print("2. Add budget")
     print("3. Show weekly summary")
     print("4. Reset the week")
@@ -12,9 +13,21 @@ def menu():
 
 class InteractiveExpenseTracker:
     def __init__(self):
-        self.weekly_totals = {} 
-        self.weekly_budgets = {}  
+        self.username = input("Enter your username: ").strip()
+        self.data_file = f"data_{self.username}.json"
+
+        self.weekly_totals = {}
+        self.weekly_budgets = {}
         self.active = 1
+
+        try:
+            with open(self.data_file, "r") as f:
+                data = json.load(f)
+                self.weekly_totals = data.get("weekly_totals", {})
+                self.weekly_budgets = data.get("weekly_budgets", {})
+                print(f"✅ Loaded data for user: {self.username}")
+        except FileNotFoundError:
+            print(f"New user: {self.username}")
 
     def start(self):
         """Main interactive loop"""
@@ -93,6 +106,7 @@ class InteractiveExpenseTracker:
         category = category.capitalize()
         self.weekly_totals[category] = self.weekly_totals.get(category, 0) + amount
         self._check_budget(category)
+        self.save_data()
 
     def _set_budget_flow(self, predefined_category: str = None):
         """Budget setting workflow"""
@@ -107,6 +121,7 @@ class InteractiveExpenseTracker:
                 self.weekly_budgets[category] = budget
                 print(f"✅ Weekly budget for {category} set to ${budget:.2f}")
                 valid_input = True
+                self.save_data()
             except ValueError:
                 print("Invalid budget! Must be a positive number.")
 
@@ -145,6 +160,8 @@ class InteractiveExpenseTracker:
         else:
             self.weekly_totals.clear()
             print("Weekly totals cleared. Ready for new week!")
+            self.save_data()
+
 
     def prepare_chart_data(self):
         """ Arrange data into a dictionary with the form of category: [expanse, budget]. """
@@ -194,6 +211,14 @@ class InteractiveExpenseTracker:
 
         plt.tight_layout()
         plt.show()
+
+    def save_data(self):
+        data = {
+            "weekly_totals": self.weekly_totals,
+            "weekly_budgets": self.weekly_budgets}
+        with open(self.data_file, "w") as f:
+            json.dump(data, f)
+
 
 
 if __name__ == "__main__":
