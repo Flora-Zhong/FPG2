@@ -27,7 +27,7 @@ class InteractiveExpenseTracker:
                 option = int(option)
             except ValueError:
                 print()
-                print("Please enter an integer between 1 and 5.")
+                print("Please enter an integer between 0 and 5.")
                 print()
                 menu()
                 print()
@@ -43,11 +43,11 @@ class InteractiveExpenseTracker:
                 elif option == 5:
                     self.visualize_expenses()
                 elif option == 0:
-                    print("Thank you for using Student Daily Usage & Expense Tracker! Good bye!")
+                    print("Thank you for using Student Weekly Expense Tracker! Good bye!")
                     self.active = 0
                 else:
                     print()
-                    print("Invalid option. Please select from 1 to 5.")
+                    print("Invalid option. Please select from 0 to 5.")
                     print()
                     menu()
                     print()
