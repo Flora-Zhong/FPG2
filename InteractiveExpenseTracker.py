@@ -9,6 +9,7 @@ def menu():
     print("3. Show weekly summary")
     print("4. Reset the week")
     print("5. Plot the data")
+    print("6. Get weekly report PDF")
     print("0. Exit")
 
 class InteractiveExpenseTracker:
@@ -74,7 +75,7 @@ class InteractiveExpenseTracker:
                 option = int(option)
             except ValueError:
                 print()
-                print("Please enter an integer between 0 and 5.")
+                print("Please enter an integer between 0 and 6.")
                 print()
                 menu()
                 print()
@@ -89,12 +90,14 @@ class InteractiveExpenseTracker:
                     self._reset_week()
                 elif option == 5:
                     self.visualize_expenses()
+                elif option == 6:
+                    self.creating_report_pdf()
                 elif option == 0:
                     print("Thank you for using Student Weekly Expense Tracker! Good bye!")
                     self.active = 0
                 else:
                     print()
-                    print("Invalid option. Please select from 0 to 5.")
+                    print("Invalid option. Please select from 0 to 6.")
                     print()
                     menu()
                     print()
@@ -208,7 +211,7 @@ class InteractiveExpenseTracker:
             print(chart_data)
         return chart_data
 
-    def visualize_expenses(self):
+    def plotting(self):
         """ Plot a grouped bar chart with organized data. """
         data = self.prepare_chart_data()
         categories = list(data.keys())
@@ -240,7 +243,17 @@ class InteractiveExpenseTracker:
         ax.set_axisbelow(True)
 
         plt.tight_layout()
+        return fig
+
+    def visualize_expenses(self):
+        fig = self.plotting()
         plt.show()
+        plt.close(fig)
+
+    def creating_report_pdf(self):
+        fig = self.plotting()
+        plt.savefig(f"weekly_report_{self.username}.pdf")
+        plt.close(fig)
 
     def save_data(self):
         data = {
