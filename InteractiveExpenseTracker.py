@@ -14,7 +14,8 @@ def menu():
 
 class InteractiveExpenseTracker:
     def __init__(self):
-        self.username = input("Enter your username: ").strip()
+        username = input("Enter your username: ").strip()
+        self.username = username.capitalize()
         self.data_file = f"data_{self.username}.json"
         self.history_file = f"history_{self.username}.json"
 
@@ -81,13 +82,13 @@ class InteractiveExpenseTracker:
                 print()
             else:
                 if option == 1:
-                    self._add_expense_flow()
+                    self.add_expense_flow()
                 elif option == 2:
-                    self._set_budget_flow()
+                    self.set_budget_flow()
                 elif option == 3:
-                    self._show_summary()
+                    self.show_summary()
                 elif option == 4:
-                    self._reset_week()
+                    self.reset_week()
                 elif option == 5:
                     self.visualize_expenses()
                 elif option == 6:
@@ -102,7 +103,7 @@ class InteractiveExpenseTracker:
                     menu()
                     print()
 
-    def _add_expense_flow(self):
+    def add_expense_flow(self):
         """Handle expense entry process"""
         valid_input = False
         category = input("Category: ").strip()
@@ -110,11 +111,11 @@ class InteractiveExpenseTracker:
 
         # Auto-create category if not exists
         if category.capitalize() not in self.weekly_totals:
-            self._handle_new_category(category = category)
+            self.handle_new_category(category = category)
         while not valid_input:
             try:
                 amount = float(input("Enter amount: $").strip())
-                self._add_expense(amount, category)
+                self.add_expense(amount, category)
                 print(f"Added ${amount:.2f} to {category}")
                 valid_input = True
 
@@ -122,14 +123,14 @@ class InteractiveExpenseTracker:
                 print("Invalid amount! Please enter a number.")
                 print()
 
-    def _handle_new_category(self, category: str):
+    def handle_new_category(self, category: str):
         """Handle dynamic category creation"""
         category = category.capitalize()
         print(f"New category detected: {category}")
         while True:
             choice = input("Set weekly budget for this category? (yes/no): ").lower()
             if choice == 'yes':
-                self._set_budget_flow(category)
+                self.set_budget_flow(category)
                 break
             elif choice == 'no':
                 print(f"{category} will have no budget monitoring")
@@ -138,14 +139,14 @@ class InteractiveExpenseTracker:
             else:
                 print("Please answer yes/no")
 
-    def _add_expense(self, amount: float, category: str):
+    def add_expense(self, amount: float, category: str):
         """Update totals and check budget"""
         category = category.capitalize()
         self.weekly_totals[category] = self.weekly_totals.get(category, 0) + amount
-        self._check_budget(category)
+        self.check_budget(category)
         self.save_data()
 
-    def _set_budget_flow(self, predefined_category: str = None):
+    def set_budget_flow(self, predefined_category: str = None):
         """Budget setting workflow"""
         category = predefined_category or input("Category: ").strip()
         category = category.capitalize()
@@ -162,7 +163,7 @@ class InteractiveExpenseTracker:
             except ValueError:
                 print("Invalid budget! Must be a positive number.")
 
-    def _check_budget(self, category: str):
+    def check_budget(self, category: str):
         category = category.capitalize()
         budget = self.weekly_budgets.get(category)
         if budget is None:
@@ -174,23 +175,23 @@ class InteractiveExpenseTracker:
         elif spent >= 0.9 * budget:
             print(f"WARNING: {category} at {spent / budget:.0%} ({spent:.2f}/{budget:.2f})")
 
-    def _show_summary(self):
+    def show_summary(self):
         print("\n=== Weekly Summary ===")
         for category, spent in self.weekly_totals.items():
             budget = self.weekly_budgets.get(category)
             budget_info = f"Budget: ${budget:.2f}" if budget else "No budget set"
             progress = spent / budget if budget else 0
-            progress_bar = self._create_progress_bar(progress) if budget else ""
+            progress_bar = self.create_progress_bar(progress) if budget else ""
 
             print(f"{category.upper():<15} ${spent:.2f}  {budget_info} {progress_bar}")
 
     @classmethod
-    def _create_progress_bar(cls, progress, length: int = 20):
+    def create_progress_bar(cls, progress, length: int = 20):
         """Visualize budget progress"""
         filled = min(int(progress * length), length)
         return f"[{'█' * filled}{'░' * (length - filled)}] {min(progress * 100, 100):.0f}%"
 
-    def _reset_week(self):
+    def reset_week(self):
         """Reset all weekly totals"""
         if self.weekly_totals == {}:
             print("Weekly totals is already empty!")
@@ -236,10 +237,10 @@ class InteractiveExpenseTracker:
         ax.set_xlabel("Categories", labelpad = 15)
         ax.set_ylabel("Amount ($)", labelpad = 15)
         ax.set_xticks(x_indexes)
-        ax.set_xticklabels(categories, rotation = 45, ha = 'right')
+        ax.set_xticklabels(categories, rotation = 45, ha = "right")
         ax.legend(framealpha = 0.9)
 
-        ax.yaxis.grid(True, linestyle = '--', alpha = 0.6)
+        ax.yaxis.grid(True, linestyle = "--", alpha = 0.6)
         ax.set_axisbelow(True)
 
         plt.tight_layout()

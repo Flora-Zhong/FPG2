@@ -202,9 +202,9 @@ def main_gui():
                                 TextInput("Budget Amount (number)", (SCREEN_WIDTH // 2, 400)),
                             ]
                         elif label == "Show Summary":
-                            tracker._show_summary()
+                            tracker.show_summary()
                         elif label == "Reset Week":
-                            tracker._reset_week()
+                            tracker.reset_week()
                         elif label == "Exit":
                             pygame.quit(); sys.exit()
             if mode in ("add", "budget"):
@@ -222,7 +222,7 @@ def main_gui():
                             break
                         category = choose_category(categories)
                         notes = inputs[2].text
-                        tracker._add_expense(amount, category, date_str, notes)
+                        tracker.add_expense(amount, category)
                     else:
                         category = choose_category(categories)
                         try:
