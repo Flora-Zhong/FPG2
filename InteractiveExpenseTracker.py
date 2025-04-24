@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.container import BarContainer
 import json
 import csv
 
@@ -239,7 +240,7 @@ class InteractiveExpenseTracker:
         bars_expanse = ax.bar(x_indexes - bar_width / 2, expanses, width = bar_width, color = "blue", label = "Expense")
         bars_budget = ax.bar(x_indexes + bar_width / 2, budgets, width = bar_width, color = "orange", label = "Budget")
 
-        def add_labels(bars, color):
+        def add_labels(bars: BarContainer, color: str):
             """ Add labels to the bars. """
             for bar in bars:
                 height = bar.get_height()
