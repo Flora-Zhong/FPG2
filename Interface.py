@@ -1,12 +1,13 @@
 """
 interface.py – Pygame front-end for InteractiveExpenseTracker
 """
+from __future__ import annotations
+
 import sys
 import os
 import csv
 import json
 from typing import List, Tuple
-from __future__ import annotations
 import pygame
 import pygame.freetype as ft
 import matplotlib.pyplot as plt
