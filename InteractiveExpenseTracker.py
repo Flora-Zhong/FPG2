@@ -213,9 +213,9 @@ class InteractiveExpenseTracker:
         all_categories = sorted(set(self.weekly_totals.keys()))
 
         for category in all_categories:
-            expanse = self.weekly_totals.get(category)
+            expense = self.weekly_totals.get(category)
             budget = self.weekly_budgets.get(category, 0)
-            chart_data[category] = [expanse, budget]
+            chart_data[category] = [expense, budget]
             print(chart_data)
         return chart_data
 
