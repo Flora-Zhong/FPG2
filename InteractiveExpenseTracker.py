@@ -137,17 +137,9 @@ class InteractiveExpenseTracker:
         """Handle dynamic category creation. """
         category = category.capitalize()
         print(f"New category detected: {category}")
-        while True:
-            choice = input("Set weekly budget for this category? (yes/no): ").lower()
-            if choice == 'yes':
-                self.set_budget_flow(category)
-                break
-            elif choice == 'no':
-                print(f"{category} will have no budget monitoring")
-                self.weekly_budgets[category] = None
-                break
-            else:
-                print("Please answer yes/no")
+        print("Automatically set it as weekly budget category")
+        self.set_budget_flow(category)
+
 
     def add_expense(self, amount: float, category: str):
         """Update totals and check budget. """
