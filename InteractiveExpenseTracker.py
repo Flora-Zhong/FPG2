@@ -99,8 +99,12 @@ class InteractiveExpenseTracker:
                     self.reset_week()
                 elif option == 5:
                     self.visualize_expenses()
+                    print("The plot has been created.")
+                    print()
                 elif option == 6:
                     self.creating_report_pdf()
+                    print("The report has been created.")
+                    print()
                 elif option == 7:
                     self.expense_prediction()
                 elif option == 0:
