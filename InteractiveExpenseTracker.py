@@ -84,7 +84,7 @@ class InteractiveExpenseTracker:
                 option = int(option)
             except ValueError:
                 print()
-                print("Please enter an integer between 0 and 6.")
+                print("Please enter an integer between 0 and 7.")
                 print()
                 menu()
                 print()
@@ -108,7 +108,7 @@ class InteractiveExpenseTracker:
                     self.active = 0
                 else:
                     print()
-                    print("Invalid option. Please select from 0 to 6.")
+                    print("Invalid option. Please select from 0 to 7.")
                     print()
                     menu()
                     print()
