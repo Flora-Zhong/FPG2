@@ -9,7 +9,7 @@ import pygame
 import pygame.freetype as ft
 import matplotlib.pyplot as plt
 import numpy as np
-from tracker import InteractiveExpenseTracker
+from InteractiveExpenseTracker import InteractiveExpenseTracker
 
 WIDTH, HEIGHT = 900, 620
 FPS = 60
