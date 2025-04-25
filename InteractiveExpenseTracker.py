@@ -25,10 +25,8 @@ class InteractiveExpenseTracker:
         self.history_file = f"history_{self.username}.csv"
         self.current_week = 1
         self.init_history()
-
         self.weekly_totals = {}
         self.weekly_budgets = {}
-        self.history = {}
         self.active = 1
 
         try:
@@ -274,7 +272,8 @@ class InteractiveExpenseTracker:
         data = {
             "weekly_totals": self.weekly_totals,
             "weekly_budgets": self.weekly_budgets,
-            "current_week": self.current_week}
+            "current_week": self.current_week
+        }
         with open(self.data_file, "w") as f:
             json.dump(data, f)
 
@@ -284,7 +283,6 @@ class InteractiveExpenseTracker:
             with open(self.history_file, "r") as f:
                 reader = csv.reader(f)
                 rows = [row for row in reader if row]
-
                 if not rows:
                     raise FileNotFoundError
 
@@ -308,6 +306,7 @@ class InteractiveExpenseTracker:
                     self.history[category] = amounts
 
         except FileNotFoundError:
+            self.history = {}
             with open(self.history_file, "w", newline = "") as f:
                 writer = csv.writer(f)
                 writer.writerow([self.current_week])
@@ -329,13 +328,13 @@ class InteractiveExpenseTracker:
 
     def save_history(self):
         """ Save the updated history data. """
-        with open(self.history_file, 'w') as f:
+        self.current_week += 1
+        with open(self.history_file, "w") as f:
             writer = csv.writer(f)
             writer.writerow([self.current_week])
             for category in sorted(self.history.keys()):
                 formatted_data = [f"{x:.2f}" for x in self.history[category]]
                 writer.writerow([category] + formatted_data)
-        self.current_week += 1
 
     def expense_prediction(self):
         """ Show expense prediction for the next week. """
