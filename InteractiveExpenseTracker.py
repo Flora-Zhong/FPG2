@@ -216,7 +216,6 @@ class InteractiveExpenseTracker:
             expense = self.weekly_totals.get(category)
             budget = self.weekly_budgets.get(category, 0)
             chart_data[category] = [expense, budget]
-            print(chart_data)
         return chart_data
 
     def plotting(self):
