@@ -26,13 +26,15 @@ CLOCK = pygame.time.Clock()
 F_TITLE = ft.SysFont(None, 46)
 F_TEXT  = ft.SysFont(None, 24)
 
-def lerp_rgb(color_a, color_b, t):
+def lerp_rgb(color_a: tuple[int, int, int], 
+             color_b: tuple[int, int, int], 
+             t: float) -> tuple[int, int, int]:
     """
     Linear-interpolate between two RGB tuples.
     """
     return tuple(int(a + (b - a) * t) for a, b in zip(color_a, color_b))
 
-def draw_background_gradient():
+def draw_background_gradient() -> None:
     """
     Paint a vertical gradient across the entire window.
     """
@@ -43,7 +45,7 @@ def draw_background_gradient():
             (0, y), (WIDTH, y)
         )
 
-def draw_glass_panel(rect):
+def draw_glass_panel(rect: pygame.Rect) -> None:
     """
     Draw a semi-transparent, rounded glass panel.
     """
@@ -53,7 +55,11 @@ def draw_glass_panel(rect):
                      width=1, border_radius=16)
     WIN.blit(surface, rect.topleft)
 
-def render_centered_text(font, text, pos, color=CLR_WHITE, size=None):
+def render_centered_text(font: ft.Font, 
+                         text: str, 
+                         pos: tuple[int, int], 
+                         color: tuple[int, int, int] = CLR_WHITE, 
+                         size: int | None = None) -> None:
     """
     Render *text* centred at *pos* using *font*.
     """
@@ -69,12 +75,12 @@ class Button:
     """
     A simple rounded-rectangle button with hover outline.
     """
-    def __init__(self, label, center):
+    def __init__(self, label: str, center: tuple[int, int]) -> None:
         self.label = label
         self.rect  = pygame.Rect(0, 0, 240, 56)
         self.rect.center = center
 
-    def draw(self):
+    def draw(self) -> None:
         """
         Render the button.
         """
@@ -86,7 +92,7 @@ class Button:
         WIN.blit(surf, self.rect.topleft)
         render_centered_text(F_TEXT, self.label, self.rect.center, col, 24)
 
-    def hit(self, pos):
+    def hit(self, pos: tuple[int, int]) -> bool:
         """Return True if *pos* lies inside the button."""
         return self.rect.collidepoint(pos)
 
@@ -97,14 +103,14 @@ class TextInput:
     COL_ACTIVE  = CLR_ACCENT
     COL_PASSIVE = (160, 160, 160)
     
-    def __init__(self, prompt, center):
+    def __init__(self, prompt: str, center: tuple[int, int]) -> None:
         self.prompt = prompt
         self.text   = ""
         self.active = False
         self.rect   = pygame.Rect(0, 0, 340, 40)
         self.rect.center = center
         
-    def handle_event(self, event):
+    def handle_event(self, event: pygame.event.Event) -> None:
         """Update focus / text according to the event given."""
         if event.type == pygame.MOUSEBUTTONDOWN:
             self.active = self.rect.collidepoint(event.pos)
@@ -116,7 +122,7 @@ class TextInput:
             elif len(event.unicode) == 1 and event.unicode.isprintable():
                 self.text += event.unicode
 
-    def draw(self):
+    def draw(self) -> None:
         """
         Render prompt label and current input text.
         """
@@ -133,14 +139,14 @@ NOTICE_COL  = CLR_WHITE
 NOTICE_TIME = 0
 NOTICE_MS   = 3000
 
-def banner(msg, col=CLR_WHITE):
+def banner(msg: str, col: tuple[int, int, int] = CLR_WHITE) -> None:
     """
     Display a transient notice banner (3 seconds).
     """
     global NOTICE_MSG, NOTICE_COL, NOTICE_TIME
     NOTICE_MSG, NOTICE_COL, NOTICE_TIME = msg, col, pygame.time.get_ticks()
 
-def modal_text(prompt):
+def modal_text(prompt: str) -> str:
     """Blocking text prompt; returns user input after pressing Enter."""
     inp = TextInput(prompt, (WIDTH//2, HEIGHT//2))
     while True:
@@ -155,7 +161,7 @@ def modal_text(prompt):
         inp.draw()
         pygame.display.flip(); CLOCK.tick(FPS)
 
-def modal_load_or_new(root):
+def modal_load_or_new(root: str) -> str:
     """
     Offer “Load Existing Data” versus “Create New Account”.
     """
@@ -180,7 +186,7 @@ def modal_load_or_new(root):
         b_load.draw(); b_new.draw()
         pygame.display.flip(); CLOCK.tick(FPS)
 
-def split_root_suffix(name):
+def split_root_suffix(name: str) -> tuple[str, int]:
     """
     Split *name* into (root, suffix_int).
     """
@@ -191,7 +197,7 @@ def split_root_suffix(name):
     suffix = int(name[i:]) if name[i:] else 0
     return root, suffix
 
-def next_unused_suffix(root, variants):
+def next_unused_suffix(root: str, variants: list[str]) -> int:
     """
     Compute the lowest positive integer suffix not yet used for *root*.
     """
@@ -201,7 +207,7 @@ def next_unused_suffix(root, variants):
         n += 1
     return n
 
-def build_tracker():
+def build_tracker() -> tuple[InteractiveExpenseTracker, list[str]]:
     """
     Handle username logic, then construct & return an uninitialised Tracker instance plus the initial category list.
     """
@@ -250,7 +256,7 @@ def build_tracker():
            else f"New user: {username}")
     return tr, cats
 
-def modal_pick_category(cats):
+def modal_pick_category(cats: list[str]) -> str:
     """
     Modal list of categories with “+ New Category”.
     """
@@ -279,7 +285,8 @@ def modal_pick_category(cats):
         b_new.draw()
         pygame.display.flip(); CLOCK.tick(FPS)
 
-def prompt_budget(tracker, cat):
+def prompt_budget(tracker: InteractiveExpenseTracker, 
+                  cat: str) -> None:
     """
     Prompt the user for a positive numeric budget for *cat*.
     """
@@ -298,7 +305,8 @@ def prompt_budget(tracker, cat):
         tracker.save_current_data()
         break
 
-def flow_add_expense(tracker, cats):
+def flow_add_expense(tracker: InteractiveExpenseTracker, 
+                     cats: list[str]) -> None:
     """
     Run the “Add Expense” flow: amount → category → (optional) budget.
     """
