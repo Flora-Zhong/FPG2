@@ -288,8 +288,11 @@ def prompt_budget(tracker, cat):
         try:
             val = float(inp)
             assert val > 0
-        except Exception:
-            banner("Invalid budget value!", (255, 80, 80))
+        except ValueError:
+            banner("Please enter a number.", (255, 80, 80))
+            continue
+        except AssertionError:
+            banner("Budget must be greater than 0.", (255, 80, 80))
             continue
         tracker.weekly_budgets[cat] = val
         tracker.save_current_data()
@@ -302,8 +305,11 @@ def flow_add_expense(tracker, cats):
     try:
         amt = float(modal_text("Expense amount:"))
         assert amt > 0
-    except Exception:
-        banner("Invalid amount!", (255, 80, 80))
+    except ValueError:
+        banner("Amount must be a number.", (255, 80, 80))
+        return
+    except AssertionError:
+        banner("Amount must be greater than 0.", (255, 80, 80))
         return
     cat = modal_pick_category(cats)
     if cat not in tracker.weekly_totals:
