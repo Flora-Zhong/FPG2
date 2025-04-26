@@ -122,7 +122,7 @@ class InteractiveExpenseTracker:
         category = category.capitalize()
 
         # Auto-create category if not exists
-        if category.capitalize() not in self.weekly_totals:
+        if category.capitalize() not in self.weekly_totals and category not in self.weekly_budgets:
             self.handle_new_category(category = category)
         while not valid_input:
             try:
@@ -139,7 +139,7 @@ class InteractiveExpenseTracker:
         """Handle dynamic category creation. """
         category = category.capitalize()
         print(f"New category detected: {category}")
-        print("Automatically set it as weekly budget category")
+        print("Automatically set it as weekly budget category.")
         self.set_budget_flow(category)
 
 
@@ -196,7 +196,7 @@ class InteractiveExpenseTracker:
     def create_progress_bar(cls, progress, length: int = 20):
         """Visualize budget progress. """
         filled = min(int(progress * length), length)
-        return f"[{'█' * filled}{'░' * (length - filled)}] {min(progress * 100, 100):.0f}%"
+        return f"[{"█" * filled}{"░" * (length - filled)}] {min(progress * 100, 100):.0f}%"
 
     def reset_week(self):
         """Reset all weekly totals. """
@@ -339,7 +339,7 @@ class InteractiveExpenseTracker:
     def expense_prediction(self):
         """ Show expense prediction for the next week. """
         if not self.history:
-            print("No historical data available for prediction")
+            print("No historical data available for prediction.")
             return
 
         print()
