@@ -127,12 +127,14 @@ class InteractiveExpenseTracker:
         while not valid_input:
             try:
                 amount = float(input("Enter amount: $").strip())
+                if amount <= 0:
+                    raise ValueError
                 self.add_expense(amount, category)
                 print(f"Added ${amount:.2f} to {category}")
                 valid_input = True
 
             except ValueError:
-                print("Invalid amount! Please enter a number.")
+                print("Invalid amount! Please enter a positive number.")
                 print()
 
     def handle_new_category(self, category: str):
@@ -166,6 +168,7 @@ class InteractiveExpenseTracker:
                 self.save_current_data()
             except ValueError:
                 print("Invalid budget! Must be a positive number.")
+                print()
 
     def check_budget(self, category: str):
         """ To check whether expense is close or over the budget or not and gives out warnings. """
