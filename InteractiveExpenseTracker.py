@@ -7,7 +7,7 @@ import csv
 def menu():
     """ Print out the menu for this program. """
     print("=== Weekly Expense Tracker ===")
-    print("1. Add expanse")
+    print("1. Add expense")
     print("2. Add budget")
     print("3. Show weekly summary")
     print("4. Reset the week")
