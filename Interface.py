@@ -20,11 +20,11 @@ WHITE = (245, 245, 245)
 PANEL_ALPHA = 180
 BUTTON_ALPHA = 200
 pygame.init()
-WIN = pygame.display.set_mode((WIDTH, HEIGHT))
+win = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Weekly Expense Tracker")
-CLOCK = pygame.time.Clock()
-F_TITLE = ft.SysFont(None, 46)
-F_TEXT  = ft.SysFont(None, 24)
+clock = pygame.time.Clock()
+font_title = pygame.freetype.SysFont(None, 46)
+font_text = pygame.freetype.SysFont(None, 24)
 
 def lerp_rgb(color_a: tuple[int, int, int], 
              color_b: tuple[int, int, int], 
@@ -46,27 +46,28 @@ def draw_glass_panel(rect: pygame.Rect) -> None:
     """
     Draw a translucent panel with rounded corners.
     """
-    surface = pygame.Surface(rect.size, pygame.SRCALPHA)
-    surface.fill((0, 0, 0, ALPHA_PANEL))
-    pygame.draw.rect(surface, CLR_WHITE, surface.get_rect(),
-                     width=1, border_radius=16)
-    WIN.blit(surface, rect.topleft)
+    surf = pygame.Surface(rect.size, pygame.SRCALPHA)
+    surf.fill((0, 0, 0, PANEL_ALPHA))
+    pygame.draw.rect(surf, WHITE, surf.get_rect(), 1, border_radius=16)
+    win.blit(surf, rect.topleft)
 
 def render_centered_text(font: ft.Font, 
                          text: str, 
                          pos: tuple[int, int], 
-                         color: tuple[int, int, int] = CLR_WHITE, 
-                         size: int | None = None) -> None:
+                         color: tuple[int, int, int] = WHITE, 
+                         size = None) -> None:
     """
-    Render *text* centred at *pos* using *font*.
+    Render text centered at pos.
     """
-    rect = font.get_rect(text, size=size) if size else font.get_rect(text)
-    rect.center = pos
-
-    if size is None:
-        font.render_to(WIN, rect.topleft, text, color)  # ← 不传 size
+    if size:
+        rect = font.get_rect(text, size=size)
     else:
-        font.render_to(WIN, rect.topleft, text, color, size=size)
+        rect = font.get_rect(text)
+    rect.center = pos
+    if size:
+        font.render_to(win, rect.topleft, text, color, size=size)
+    else:
+        font.render_to(win, rect.topleft, text, color)
 
 class Button:
     """
@@ -82,15 +83,15 @@ class Button:
         Render the button.
         """
         hover = self.rect.collidepoint(pygame.mouse.get_pos())
-        col   = CLR_ACCENT if hover else CLR_WHITE
-        surf  = pygame.Surface(self.rect.size, pygame.SRCALPHA)
-        surf.fill((0, 0, 0, ALPHA_BUTTON + (40 if hover else 0)))
+        col = ACCENT_COLOR if hover else WHITE
+        surf = pygame.Surface(self.rect.size, pygame.SRCALPHA)
+        surf.fill((0, 0, 0, BUTTON_ALPHA + (40 if hover else 0)))
         pygame.draw.rect(surf, col, surf.get_rect(), 2, border_radius=14)
-        WIN.blit(surf, self.rect.topleft)
-        render_centered_text(F_TEXT, self.label, self.rect.center, col, 24)
+        win.blit(surf, self.rect.topleft)
+        render_centered_text(font_text, self.label, self.rect.center, col, 24)
 
     def hit(self, pos: tuple[int, int]) -> bool:
-        """Return True if *pos* lies inside the button."""
+        """Return True if pos lies inside the button."""
         return self.rect.collidepoint(pos)
 
 class TextInput:
