@@ -356,11 +356,10 @@ def main():
                         elif label == "Show Summary":
                             mode, back = "summary", Button("Back", (WIDTH//2, 520))
                         elif label == "Reset Week":
-                            if tracker.weekly_totals:
-                                tracker.reset_week()
-                                banner("Week reset.")
-                            else:
-                                banner("Weekly totals empty.")
+                            tracker.reset_week()
+                            tracker.weekly_budgets.clear()
+                            tracker.save_current_data()
+                            banner("Week reset.")
                         elif label == "Visualize Expenses":
                             fig = tracker.plotting()
                             fig.savefig("tmp.png"); plt.close(fig)
