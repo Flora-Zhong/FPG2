@@ -96,10 +96,10 @@ class Button:
 
 class TextInput:
     """
-    Single-line text box with prompt and active border.
+    Simple single-line text input box.
     """
-    COL_ACTIVE  = CLR_ACCENT
-    COL_PASSIVE = (160, 160, 160)
+    ACTIVE_COLOR = ACCENT_COLOR
+    PASSIVE_COLOR = (160, 160, 160)
     
     def __init__(self, prompt: str, center: tuple[int, int]) -> None:
         self.prompt = prompt
@@ -117,32 +117,34 @@ class TextInput:
                 self.active = False
             elif event.key == pygame.K_BACKSPACE:
                 self.text = self.text[:-1]
-            elif len(event.unicode) == 1 and event.unicode.isprintable():
+            elif event.unicode.isprintable():
                 self.text += event.unicode
 
     def draw(self) -> None:
         """
-        Render prompt label and current input text.
+        Draw the input box and text.
         """
-        border = self.COL_ACTIVE if self.active else self.COL_PASSIVE
-        pygame.draw.rect(WIN, (0, 0, 0, 200), self.rect, border_radius=8)
-        pygame.draw.rect(WIN, border, self.rect, 2, border_radius=8)
-        render_centered_text(F_TEXT, self.prompt,
+        border = self.ACTIVE_COLOR if self.active else self.PASSIVE_COLOR
+        pygame.draw.rect(win, (0, 0, 0, 200), self.rect, border_radius=8)
+        pygame.draw.rect(win, border, self.rect, 2, border_radius=8)
+        render_centered_text(font_text, self.prompt,
                              (self.rect.centerx, self.rect.y - 15))
-        F_TEXT.render_to(WIN, (self.rect.x + 10, self.rect.y + 8),
-                         self.text or " ", CLR_WHITE)
+        font_text.render_to(win, (self.rect.x + 10, self.rect.y + 8),
+                            self.text or " ", WHITE)
 
-NOTICE_MSG  = ""
-NOTICE_COL  = CLR_WHITE
-NOTICE_TIME = 0
-NOTICE_MS   = 3000
+notice_msg = ""
+notice_color = WHITE
+notice_time = 0
+notice_duration = 3000
 
 def banner(msg: str, col: tuple[int, int, int] = CLR_WHITE) -> None:
     """
     Display a transient notice banner (3 seconds).
     """
-    global NOTICE_MSG, NOTICE_COL, NOTICE_TIME
-    NOTICE_MSG, NOTICE_COL, NOTICE_TIME = msg, col, pygame.time.get_ticks()
+    global notice_msg, notice_color, notice_time
+    notice_msg = text
+    notice_color = color
+    notice_time = pygame.time.get_ticks()
 
 def modal_text(prompt: str) -> str:
     """Blocking text prompt; returns user input after pressing Enter."""
