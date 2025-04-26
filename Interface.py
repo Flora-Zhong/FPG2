@@ -13,12 +13,12 @@ from InteractiveExpenseTracker import InteractiveExpenseTracker
 
 WIDTH, HEIGHT = 900, 620
 FPS = 60
-CLR_GRADIENT_TOP = (40, 35, 90)
-CLR_GRADIENT_BOTTOM = (15, 40, 60)
-CLR_ACCENT = (120, 180, 255)
-CLR_WHITE = (245, 245, 245)
-ALPHA_PANEL  = 180
-ALPHA_BUTTON = 200
+TOP_COLOR = (40, 35, 90)
+BOTTOM_COLOR = (15, 40, 60)
+ACCENT_COLOR = (120, 180, 255)
+WHITE = (245, 245, 245)
+PANEL_ALPHA = 180
+BUTTON_ALPHA = 200
 pygame.init()
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Weekly Expense Tracker")
@@ -30,7 +30,7 @@ def lerp_rgb(color_a: tuple[int, int, int],
              color_b: tuple[int, int, int], 
              t: float) -> tuple[int, ...]:
     """
-    Linear-interpolate between two RGB tuples.
+    Mix two colors by t (0.0 to 1.0).
     """
     return tuple(int(a + (b - a) * t) for a, b in zip(color_a, color_b))
 
@@ -39,15 +39,12 @@ def draw_background_gradient() -> None:
     Paint a vertical gradient across the entire window.
     """
     for y in range(HEIGHT):
-        pygame.draw.line(
-            WIN,
-            lerp_rgb(CLR_GRADIENT_TOP, CLR_GRADIENT_BOTTOM, y / HEIGHT),
-            (0, y), (WIDTH, y)
-        )
+        col = lerp_rgb(TOP_COLOR, BOTTOM_COLOR, y / HEIGHT)
+        pygame.draw.line(win, col, (0, y), (WIDTH, y))
 
 def draw_glass_panel(rect: pygame.Rect) -> None:
     """
-    Draw a semi-transparent, rounded glass panel.
+    Draw a translucent panel with rounded corners.
     """
     surface = pygame.Surface(rect.size, pygame.SRCALPHA)
     surface.fill((0, 0, 0, ALPHA_PANEL))
