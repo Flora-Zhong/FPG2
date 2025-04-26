@@ -185,13 +185,17 @@ class InteractiveExpenseTracker:
         print("=== Weekly Summary ===")
         for category, spent in self.weekly_totals.items():
             budget = self.weekly_budgets.get(category)
-            budget_info = f"Budget: ${budget:.2f}" if budget else "No budget set."
-            progress = spent / budget if budget else 0
-            progress_bar = self.create_progress_bar(progress) if budget else ""
+            if budget is not None:
+                budget_info = f"Budget: ${budget:.2f}"
+                progress = spent / budget
+                progress_bar = self.create_progress_bar(progress)
+            else:
+                budget_info = "No budget set."
+                progress_bar = ""
             print(f"{category.upper():<15} ${spent:.2f}  {budget_info} {progress_bar}")
 
     @classmethod
-    def create_progress_bar(cls, progress, length: int = 20):
+    def create_progress_bar(cls, progress: float, length: int = 20):
         """ Visualize budget progress. """
         filled = min(int(progress * length), length)
         return f"[{"█" * filled}{"░" * (length - filled)}] {min(progress * 100, 100):.0f}%"
@@ -235,9 +239,9 @@ class InteractiveExpenseTracker:
                 height = bar.get_height()
                 ax.text(bar.get_x() + bar.get_width() / 2, height, f"${height:.2f}", ha = "center", va = "bottom", color = color)
 
-        add_labels(bars_expanse, "blue") # The color of UF!
-        add_labels(bars_budget, "orange") # Also the color of UF!
-        ax.set_title("Weekly Spending vs Budget Comparison")
+        add_labels(bars_expanse, "blue") # Blue is the color of UF! Since we do not know what the exact name of the UF blue, we will just use "blue" here.
+        add_labels(bars_budget, "orange") # Orange is also the color of UF! Since we do not know what the exact name of the UF orange, we will just use "orange" here.
+        ax.set_title(f"{self.username}'s Week {self.current_week} Expense vs. Budget Comparison")
         ax.set_xlabel("Categories")
         ax.set_ylabel("Amount ($)")
         ax.set_xticks(x_indexes)
@@ -290,9 +294,11 @@ class InteractiveExpenseTracker:
                     amounts = []
                     for amount in row[1:]:
                         try:
-                            amounts.append(float(amount))
+                            val = float(amount)
+                            if not np.isnan(val):
+                                amounts.append(val)
                         except ValueError:
-                            amounts.append(0)
+                            amounts.append(np.nan) # To have differences between real 0 data and error data.
                     self.history[category] = amounts
         except FileNotFoundError:
             self.history = {}
