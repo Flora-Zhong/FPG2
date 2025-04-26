@@ -321,98 +321,109 @@ def flow_add_expense(tracker, cats):
     tracker.save_current_data()
   
 def main():
-    """Launch the Pygame UI and run indefinitely."""
+    """
+    App entry point: build UI state and enter the loop.
+    """
     tracker, cats = build_tracker()
-    labels = ["Add Expense", "Set Budget", "Show Summary", "Reset Week",
-              "Visualize Expenses", "Weekly PDF Report", "Expense Prediction"]
-    col = [WIDTH//2 - 160, WIDTH//2 + 160]
-    btns = [Button(l, (col[i%2], 190+(i//2)*80)) for i, l in enumerate(labels)]
+    labels = [
+        "Add Expense", "Set Budget", "Show Summary", "Reset Week",
+        "Visualize Expenses", "Weekly PDF Report", "Expense Prediction"
+    ]
+    btn_positions = [
+        (WIDTH//2 - 160 + (i % 2) * 320, 190 + (i // 2) * 80)
+        for i in range(len(labels))
+    ]
+    buttons = [Button(lbl, pos) for lbl, pos in zip(labels, btn_positions)]
     exit_btn = Button("Exit", (WIDTH//2, 540))
-    p_main  = pygame.Rect(140, 60, 680, 520)
-    p_info  = pygame.Rect(140, 40, 680, 540)
-    p_chart = pygame.Rect(50,  50, 800, 520)
-    mode, back, chart = "home", None, None
+    mode = "home"
+    back_btn = None
+    chart_img = None
     while True:
         for ev in pygame.event.get():
             if ev.type == pygame.QUIT:
-                pygame.quit(); sys.exit()
-            if ev.type == pygame.KEYDOWN and ev.key == pygame.K_ESCAPE and mode != "home":
-                mode, back, chart = "home", None, None
+                pygame.quit()
+                sys.exit()
             if mode == "home" and ev.type == pygame.MOUSEBUTTONDOWN:
                 if exit_btn.hit(ev.pos):
-                    pygame.quit(); sys.exit()
-                for b in btns:
+                    pygame.quit()
+                    sys.exit()
+                for b in buttons:
                     if b.hit(ev.pos):
-                        label = b.label
-                        if label == "Add Expense":
+                        lbl = b.label
+                        if lbl == "Add Expense":
                             flow_add_expense(tracker, cats)
-                        elif label == "Set Budget":
+                        elif lbl == "Set Budget":
                             prompt_budget(tracker, modal_pick_category(cats))
-                        elif label == "Show Summary":
-                            mode, back = "summary", Button("Back", (WIDTH//2, 520))
-                        elif label == "Reset Week":
+                        elif lbl == "Show Summary":
+                            mode, back_btn = "summary", Button("Back", (WIDTH//2, 520))
+                        elif lbl == "Reset Week":
                             tracker.reset_week()
                             tracker.weekly_budgets.clear()
                             tracker.save_current_data()
                             banner("Week reset.")
-                        elif label == "Visualize Expenses":
+                        elif lbl == "Visualize Expenses":
                             fig = tracker.plotting()
-                            fig.savefig("tmp.png"); plt.close(fig)
-                            chart = pygame.image.load("tmp.png"); os.remove("tmp.png")
-                            mode, back = "chart", Button("Back", (WIDTH//2, 520))
-                        elif label == "Weekly PDF Report":
+                            fig.savefig("tmp.png")
+                            plt.close(fig)
+                            chart_img = pygame.image.load("tmp.png")
+                            os.remove("tmp.png")
+                            mode, back_btn = "chart", Button("Back", (WIDTH//2, 520))
+                        elif lbl == "Weekly PDF Report":
                             tracker.creating_report_pdf()
                             banner("PDF saved.")
-                        elif label == "Expense Prediction":
-                            mode, back = "prediction", Button("Back", (WIDTH//2, 520))
+                        elif lbl == "Expense Prediction":
+                            mode, back_btn = "prediction", Button("Back", (WIDTH//2, 520))
                         break
-            if mode in ("summary", "prediction", "chart") and ev.type == pygame.MOUSEBUTTONDOWN:
-                if back and back.hit(ev.pos):
-                    mode, back, chart = "home", None, None
+            if mode in ("summary", "chart", "prediction") and ev.type == pygame.MOUSEBUTTONDOWN:
+                if back_btn and back_btn.hit(ev.pos):
+                    mode, back_btn, chart_img = "home", None, None
         draw_background_gradient()
         pane, title = {
-            "home"      : (p_main,  "Weekly Expense Tracker"),
-            "summary"   : (p_info,  "Weekly Summary"),
-            "prediction": (p_info,  "Expense Prediction"),
-            "chart"     : (p_chart, "Weekly Expenses Chart")
+            "home":      ((140, 60, 680, 520),  "Weekly Expense Tracker"),
+            "summary":   ((140, 40, 680, 540),  "Weekly Summary"),
+            "chart":     ((50,  50, 800, 520),  "Weekly Expenses Chart"),
+            "prediction":((140, 40, 680, 540),  "Expense Prediction")
         }[mode]
-        draw_glass_panel(pane)
-        render_centered_text(F_TITLE, title, (pane.centerx, pane.y+40), CLR_ACCENT)
+        rect = pygame.Rect(*pane)
+        draw_glass_panel(rect)
+        render_centered_text(font_title, title, (rect.centerx, rect.y + 40), ACCENT_COLOR)
         if mode == "home":
-            render_centered_text(F_TEXT, f"User: {tracker.username}",
-                                 (pane.centerx, pane.y+80))
-            for b in btns:
+            render_centered_text(font_text, f"User: {tracker.username}", (rect.centerx, rect.y + 80))
+            for b in buttons:
                 b.draw()
             exit_btn.draw()
         elif mode == "summary":
-            y = pane.y + 100
-            all_cats = sorted(set(tracker.weekly_totals) | set(tracker.weekly_budgets))
-            if not all_cats:
-                render_centered_text(F_TEXT, "No data.", (pane.centerx, y))
-            for c in all_cats:
+            y = rect.y + 100
+            cats_set = sorted(set(tracker.weekly_totals) | set(tracker.weekly_budgets))
+            if not cats_set:
+                render_centered_text(font_text, "No data.", (rect.centerx, y))
+            for c in cats_set:
                 spent = tracker.weekly_totals.get(c, 0.0)
                 bud   = tracker.weekly_budgets.get(c)
-                line  = f"{c}: ${spent:.2f}" if bud is None else f"{c}: ${spent:.2f} / ${bud:.2f}"
-                F_TEXT.render_to(WIN, (pane.x+30, y), line, CLR_WHITE); y += 30
-            back.draw()
+                line = f"{c}: ${spent:.2f}" + (f" / ${bud:.2f}" if bud else "")
+                font_text.render_to(win, (rect.x+30, y), line, WHITE)
+                y += 30
+            back_btn.draw()
         elif mode == "prediction":
-            y = pane.y + 100
+            y = rect.y + 100
             if not tracker.history:
-                render_centered_text(F_TEXT, "No history.", (pane.centerx, y))
+                render_centered_text(font_text, "No history.", (rect.centerx, y))
             for c, hist in tracker.history.items():
                 arr = np.array(hist)
-                mean, std = arr.mean(), arr.std()
-                pred_line = f"{c}: ${max(0, mean-std):.2f}-{mean+std:.2f}"
-                F_TEXT.render_to(WIN, (pane.x+30, y), pred_line, CLR_WHITE); y += 30
-            back.draw()
-        elif mode == "chart" and chart:
-            WIN.blit(chart, chart.get_rect(center=pane.center))
-            back.draw()
-        if NOTICE_MSG and pygame.time.get_ticks() - NOTICE_TIME < NOTICE_MS:
-            y_banner = back.rect.top-20 if back else exit_btn.rect.top-20 if mode == "home" else pane.bottom-40
-            render_centered_text(F_TEXT, NOTICE_MSG, (pane.centerx, y_banner), NOTICE_COL)
+                low = max(0, arr.mean() - arr.std())
+                high = arr.mean() + arr.std()
+                line = f"{c}: ${low:.2f} - ${high:.2f}"
+                font_text.render_to(win, (rect.x+30, y), line, WHITE)
+                y += 30
+            back_btn.draw()
+        elif mode == "chart" and chart_img:
+            win.blit(chart_img, chart_img.get_rect(center=rect.center))
+            back_btn.draw()
+        if notice_msg and pygame.time.get_ticks() - notice_time < notice_duration:
+            y_banner = back_btn.rect.top - 20 if back_btn else exit_btn.rect.top - 20
+            render_centered_text(font_text, notice_msg, (rect.centerx, y_banner), notice_color)
         pygame.display.flip()
-        CLOCK.tick(FPS)
+        clock.tick(FPS)
 
 if __name__ == "__main__":
     main()
