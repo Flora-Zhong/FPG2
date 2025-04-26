@@ -28,7 +28,7 @@ F_TEXT  = ft.SysFont(None, 24)
 
 def lerp_rgb(color_a: tuple[int, int, int], 
              color_b: tuple[int, int, int], 
-             t: float) -> tuple[int, int, int]:
+             t: float) -> tuple[int, ...]:
     """
     Linear-interpolate between two RGB tuples.
     """
