@@ -32,9 +32,9 @@ class InteractiveExpenseTracker:
         try:
             with open(self.data_file, "r") as f:
                 print("Username detected, load previous data or create a new username?")
-                choice = input("Press 1 for data loading, and press 2 for new username: ")
                 valid_input = False
                 while not valid_input:
+                    choice = input("Press 1 for data loading, and press 2 for new username: ")
                     try:
                         choice = int(choice)
                     except ValueError:
@@ -68,6 +68,9 @@ class InteractiveExpenseTracker:
                                     self.data_file = f"data_{self.username}.json"
                                     self.history_file = f"history_{self.username}.json"
                                     break
+                        else:
+                            print("Please choose from 1 and 2.")
+                            print()
         except FileNotFoundError:
             print(f"New user: {self.username}")
 
