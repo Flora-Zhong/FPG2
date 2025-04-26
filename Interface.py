@@ -164,83 +164,83 @@ def modal_text(prompt: str) -> str:
         pygame.display.flip(); CLOCK.tick(FPS)
         clock.tick(FPS)
 
-def modal_load_or_new(root: str) -> str:
+def modal_load_or_new(root):
     """
-    Offer “Load Existing Data” versus “Create New Account”.
+    Ask whether to load existing data or start fresh.
     """
-    y0, y1 = 250, 300
-    b_load = Button("Load Existing Data", (WIDTH//2, y1 + 60))
-    b_new  = Button("Create New Account", (WIDTH//2, y1 + 130))
+    load_btn = Button("Load Existing Data", (WIDTH//2, 320))
+    new_btn  = Button("Create New Account", (WIDTH//2, 380))
     while True:
         for ev in pygame.event.get():
             if ev.type == pygame.QUIT:
                 pygame.quit(); sys.exit()
             if ev.type == pygame.MOUSEBUTTONDOWN:
-                if b_load.hit(ev.pos):
+                if load_btn.hit(ev.pos):
                     return "load"
-                if b_new.hit(ev.pos):
+                if new_btn.hit(ev.pos):
                     return "new"
         draw_background_gradient()
         draw_glass_panel(pygame.Rect(200, 220, 500, 250))
-        render_centered_text(F_TITLE, f"User '{root}' found",
-                             (WIDTH//2, y0), CLR_ACCENT, 32)
-        render_centered_text(F_TEXT, "Choose an option:",
-                             (WIDTH//2, y1))
-        b_load.draw(); b_new.draw()
-        pygame.display.flip(); CLOCK.tick(FPS)
+        render_centered_text(font_title, f"User '{root}' found", (WIDTH//2, 260), ACCENT_COLOR, 32)
+        render_centered_text(font_text, "Pick an option:", (WIDTH//2, 300))
+        load_btn.draw()
+        new_btn.draw()
+        pygame.display.flip()
+        clock.tick(FPS)
 
-def split_root_suffix(name: str) -> tuple[str, int]:
+def split_root_suffix(name):
     """
-    Split *name* into (root, suffix_int).
+    Separate trailing digits from a username base.
     """
     i = len(name)
-    while i > 0 and name[i-1].isdigit():
+    while i and name[i-1].isdigit():
         i -= 1
-    root = name[:i] if i else name
+    root = name[:i]
     suffix = int(name[i:]) if name[i:] else 0
     return root, suffix
 
-def next_unused_suffix(root: str, variants: list[str]) -> int:
+def next_unused_suffix(root, variants):
     """
-    Compute the lowest positive integer suffix not yet used for *root*.
+    Find the smallest integer suffix not yet in use.
     """
-    used = {split_root_suffix(v)[1] for v in variants if split_root_suffix(v)[0] == root}
+    used = {split_root_suffix(v)[1] for v in variants}
     n = 1
     while n in used:
         n += 1
     return n
 
-def build_tracker() -> tuple[InteractiveExpenseTracker, list[str]]:
+def build_tracker():
     """
-    Handle username logic, then construct & return an uninitialised Tracker instance plus the initial category list.
+    Get or create a username, then set up the tracker instance.
     """
     raw = modal_text("Enter your username:")
-    if raw == "":
+    if not raw:
         pygame.quit(); sys.exit()
     root, _ = split_root_suffix(raw.capitalize())
-    variants = [f[5:-5] for f in os.listdir('.')
-                if f.startswith(f"data_{root}") and f.endswith(".json")]
-    choice = modal_load_or_new(root) if variants else "new"
+    files = [f for f in os.listdir('.') if f.startswith(f"data_{root}") and f.endswith(".json")]
+    choice = modal_load_or_new(root) if files else "new"
     if choice == "load":
-        username = raw.capitalize() if raw.capitalize() in variants else root
+        username = raw.capitalize() if raw.capitalize() in [f[5:-5] for f in files] else root
     else:
-        username = (f"{root}{next_unused_suffix(root, variants)}"
-                    if root in variants else root)
+        username = root + str(next_unused_suffix(root, [f[5:-5] for f in files])) if root in [f[5:-5] for f in files] else root
         if username != root:
-            banner(f"Your username is set to {username}!")
+            banner(f"Username set to {username}!")
     tr = InteractiveExpenseTracker.__new__(InteractiveExpenseTracker)
     tr.username = username
-    tr.data_file    = f"data_{username}.json"
+    tr.data_file = f"data_{username}.json"
     tr.history_file = f"history_{username}.csv"
-    tr.weekly_totals, tr.weekly_budgets, tr.history = {}, {}, {}
-    tr.current_week, tr.active = 1, 1
+    tr.weekly_totals = {}
+    tr.weekly_budgets = {}
+    tr.history = {}
+    tr.current_week = 1
+    tr.active = True
     try:
         with open(tr.history_file) as f:
-            rows = [r for r in csv.reader(f) if r]
+            rows = list(csv.reader(f))
             if rows:
                 tr.current_week = int(rows[0][0])
-            for r in rows[1:]:
-                tr.history[r[0]] = [float(x) for x in r[1:]]
+                for r in rows[1:]:
+                    tr.history[r[0]] = [float(x) for x in r[1:]]
     except FileNotFoundError:
         with open(tr.history_file, "w", newline="") as f:
             csv.writer(f).writerow([tr.current_week])
@@ -248,29 +248,28 @@ def build_tracker() -> tuple[InteractiveExpenseTracker, list[str]]:
         try:
             with open(tr.data_file) as f:
                 d = json.load(f)
-                tr.weekly_totals  = d.get("weekly_totals", {})
+                tr.weekly_totals = d.get("weekly_totals", {})
                 tr.weekly_budgets = d.get("weekly_budgets", {})
-                tr.current_week   = d.get("current_week", tr.current_week)
+                tr.current_week = d.get("current_week", tr.current_week)
         except FileNotFoundError:
             pass
-    defaults = ["Food", "Entertainment", "Transport", "School Supplies"]
-    cats = list(set(defaults) | set(tr.weekly_totals) | set(tr.weekly_budgets))
-    banner(f"Loaded data for {username}" if choice == "load"
-           else f"New user: {username}")
+    cats = list(set(["Food", "Entertainment", "Transport", "School Supplies"]) |
+                set(tr.weekly_totals) | set(tr.weekly_budgets))
+    banner(f"{'Loaded' if choice=='load' else 'New'} user: {username}")
     return tr, cats
 
-def modal_pick_category(cats: list[str]) -> str:
+def modal_pick_category(cats):
     """
-    Modal list of categories with “+ New Category”.
+    Let the user pick an existing category or add a new one.
     """
-    btns = [Button(c, (WIDTH//2, 200+i*60)) for i, c in enumerate(cats)]
-    b_new = Button("+ New Category", (WIDTH//2, 200+len(cats)*60))
+    btns = [Button(c, (WIDTH//2, 180 + i*60)) for i, c in enumerate(cats)]
+    add_btn = Button("+ New Category", (WIDTH//2, 180 + len(cats)*60))
     while True:
         for ev in pygame.event.get():
             if ev.type == pygame.QUIT:
                 pygame.quit(); sys.exit()
             if ev.type == pygame.MOUSEBUTTONDOWN:
-                if b_new.hit(ev.pos):
+                if add_btn.hit(ev.pos):
                     nm = modal_text("New category name:")
                     if nm:
                         nm = nm.capitalize()
@@ -280,54 +279,47 @@ def modal_pick_category(cats: list[str]) -> str:
                     if b.hit(ev.pos):
                         return b.label
         draw_background_gradient()
-        draw_glass_panel(pygame.Rect(220, 120, 460, 420))
-        render_centered_text(F_TITLE, "Select Category",
-                             (WIDTH//2, 150), CLR_ACCENT)
+        draw_glass_panel(pygame.Rect(220, 120, 460, 440))
+        render_centered_text(font_title, "Select Category", (WIDTH//2, 160), ACCENT_COLOR, 32)
         for b in btns:
             b.draw()
-        b_new.draw()
-        pygame.display.flip(); CLOCK.tick(FPS)
+        add_btn.draw()
+        pygame.display.flip()
+        clock.tick(FPS)
 
-def prompt_budget(tracker: InteractiveExpenseTracker, 
-                  cat: str) -> None:
+def prompt_budget(tracker, cat):
     """
-    Prompt the user for a positive numeric budget for *cat*.
+    Ask for a positive weekly budget for a category.
     """
     while True:
-        inp = modal_text(f"Weekly budget for '{cat}':")
+        resp = modal_text(f"Weekly budget for '{cat}':")
         try:
-            val = float(inp)
+            val = float(resp)
             assert val > 0
-        except ValueError:
-            banner("Please enter a number.", (255, 80, 80))
-            continue
-        except AssertionError:
-            banner("Budget must be greater than 0.", (255, 80, 80))
+        except:
+            banner("Enter a positive number", (255, 80, 80))
             continue
         tracker.weekly_budgets[cat] = val
         tracker.save_current_data()
         break
 
-def flow_add_expense(tracker: InteractiveExpenseTracker, 
-                     cats: list[str]) -> None:
+def flow_add_expense(tracker, cats):
     """
-    Run the “Add Expense” flow: amount → category → (optional) budget.
+    Full flow: ask amount → category → (if needed) budget.
     """
+    amt_s = modal_text("Expense amount:")
     try:
-        amt = float(modal_text("Expense amount:"))
+        amt = float(amt_s)
         assert amt > 0
-    except ValueError:
-        banner("Amount must be a number.", (255, 80, 80))
-        return
-    except AssertionError:
-        banner("Amount must be greater than 0.", (255, 80, 80))
+    except:
+        banner("Amount must be > 0", (255, 80, 80))
         return
     cat = modal_pick_category(cats)
     if cat not in tracker.weekly_totals:
         prompt_budget(tracker, cat)
-    tracker.weekly_totals[cat] = tracker.weekly_totals.get(cat, 0.0) + amt
+    tracker.weekly_totals[cat] = tracker.weekly_totals.get(cat, 0) + amt
     tracker.save_current_data()
-
+  
 def main():
     """Launch the Pygame UI and run indefinitely."""
     tracker, cats = build_tracker()
