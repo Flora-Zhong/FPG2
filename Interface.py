@@ -137,7 +137,7 @@ notice_color = WHITE
 notice_time = 0
 notice_duration = 3000
 
-def banner(msg: str, col: tuple[int, int, int] = CLR_WHITE) -> None:
+def banner(msg: str, col: tuple[int, int, int] = WHITE) -> None:
     """
     Display a transient notice banner (3 seconds).
     """
