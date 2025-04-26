@@ -147,7 +147,9 @@ def banner(msg: str, col: tuple[int, int, int] = CLR_WHITE) -> None:
     notice_time = pygame.time.get_ticks()
 
 def modal_text(prompt: str) -> str:
-    """Blocking text prompt; returns user input after pressing Enter."""
+    """
+    Prompt user for text and wait for Enter.
+    """
     inp = TextInput(prompt, (WIDTH//2, HEIGHT//2))
     while True:
         for ev in pygame.event.get():
@@ -160,6 +162,7 @@ def modal_text(prompt: str) -> str:
         draw_glass_panel(pygame.Rect(200, 200, 500, 200))
         inp.draw()
         pygame.display.flip(); CLOCK.tick(FPS)
+        clock.tick(FPS)
 
 def modal_load_or_new(root: str) -> str:
     """
