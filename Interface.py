@@ -1,3 +1,6 @@
+# The code in this file is heavily influenced by the three sudoku project each of us did in COP3502C.
+# To see an example of these, please email Flora your GitHub username to get the access to the sudoku.py in https://github.com/Flora-Zhong/Project-Group-14 since it is a private repository.
+
 """
 interface.py – Pygame front-end for InteractiveExpenseTracker
 """
